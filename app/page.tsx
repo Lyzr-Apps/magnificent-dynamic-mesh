@@ -363,7 +363,7 @@ function CreatePolicyPage({ setCurrentPage }: { setCurrentPage: (page: string) =
 
       const data = await response.json()
 
-      if (data.success) {
+      if (data.success && data.response) {
         // Store the response and navigate
         sessionStorage.setItem('policyResponse', JSON.stringify({
           policyType,
@@ -373,6 +373,8 @@ function CreatePolicyPage({ setCurrentPage }: { setCurrentPage: (page: string) =
           response: data.response
         }))
         setCurrentPage('results')
+      } else if (data.error) {
+        setError(`Policy generation error: ${data.error}. Please try again.`)
       } else {
         setError('Failed to generate policy. Please try again.')
       }
@@ -531,10 +533,31 @@ function ResultsPage({ setCurrentPage }: { setCurrentPage: (page: string) => voi
   let complianceAnalysis: any = null
 
   if (typeof response === 'string') {
+    // If it's a string, use it directly
     policyContent = response
   } else if (response && typeof response === 'object') {
-    policyContent = response.policy_draft || response.policy || response.content || JSON.stringify(response, null, 2)
-    complianceAnalysis = response.compliance_analysis || response.analysis || response.findings || null
+    // Try to extract policy content from various possible fields
+    policyContent =
+      response.policy_draft ||
+      response.policy ||
+      response.content ||
+      response.result?.answer ||
+      response.result?.message ||
+      response.message ||
+      response.answer ||
+      JSON.stringify(response, null, 2)
+
+    // Try to extract compliance analysis
+    complianceAnalysis =
+      response.compliance_analysis ||
+      response.analysis ||
+      response.findings ||
+      null
+  }
+
+  // Fallback: if policyContent is still empty, show a default message
+  if (!policyContent) {
+    policyContent = 'Policy generated successfully. Review the compliance analysis for recommendations.'
   }
 
   const handleDownload = () => {

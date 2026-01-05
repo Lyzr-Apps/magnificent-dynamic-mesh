@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const LYZR_API_BASE_URL = 'https://agent-prod.studio.lyzr.ai/api/agency'
-
 export async function POST(request: NextRequest) {
   try {
     const { agent_id, message } = await request.json()
@@ -13,8 +11,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Call the Lyzr agent API
-    const response = await fetch(`${LYZR_API_BASE_URL}/chat`, {
+    // Call the Lyzr agent API with correct endpoint and format
+    const response = await fetch('https://agent-prod.studio.lyzr.ai/api/agency/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,23 +23,52 @@ export async function POST(request: NextRequest) {
       }),
     })
 
-    if (!response.ok) {
-      return NextResponse.json(
-        { success: false, error: `Agent API error: ${response.statusText}` },
-        { status: response.status }
-      )
+    const responseData = await response.json()
+
+    // Check if the response indicates an error
+    if (!response.ok || responseData.error) {
+      console.error('Lyzr API Error:', responseData)
+      return NextResponse.json({
+        success: false,
+        error: responseData.error || response.statusText,
+        raw_response: responseData,
+      }, { status: 200 }) // Return 200 so frontend can handle the error
     }
 
-    const data = await response.json()
+    // Extract the message from various possible response structures
+    let extractedMessage = ''
+
+    if (typeof responseData === 'string') {
+      extractedMessage = responseData
+    } else if (responseData.result && responseData.result.answer) {
+      extractedMessage = responseData.result.answer
+    } else if (responseData.result && responseData.result.message) {
+      extractedMessage = responseData.result.message
+    } else if (responseData.message) {
+      extractedMessage = responseData.message
+    } else if (responseData.answer) {
+      extractedMessage = responseData.answer
+    } else if (responseData.response) {
+      extractedMessage = responseData.response
+    } else if (responseData.data) {
+      extractedMessage = typeof responseData.data === 'string' ? responseData.data : JSON.stringify(responseData.data)
+    } else {
+      // Fallback: stringify the entire response
+      extractedMessage = JSON.stringify(responseData, null, 2)
+    }
 
     return NextResponse.json({
       success: true,
-      response: data,
+      response: extractedMessage,
+      raw_response: responseData,
     })
   } catch (error) {
     console.error('Agent API Error:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to call agent API' },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to call agent API'
+      },
       { status: 500 }
     )
   }

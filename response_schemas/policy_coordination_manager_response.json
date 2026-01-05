@@ -1,0 +1,54 @@
+{
+  "agent_name": "Policy Coordination Manager",
+  "agent_id": "695c4707457887dd859fb84e",
+  "agent_purpose": "manager",
+  "description": "Orchestrates policy drafting and compliance analysis workflow, aggregating results from sub-agents into unified output ready for HR/legal review",
+  "response_schema": {
+    "status": "string (success|error)",
+    "result": {
+      "final_output": "object (aggregated result from sub-agents)",
+      "sub_agent_results": [
+        {
+          "agent_name": "string",
+          "status": "string",
+          "output": "object"
+        }
+      ],
+      "summary": "string",
+      "workflow_completed": "boolean"
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string (ISO)",
+      "sub_agents_used": [
+        "string"
+      ]
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "final_output": {
+        "aggregated": "data from all sub-agents"
+      },
+      "sub_agent_results": [
+        {
+          "agent_name": "Sub-Agent 1",
+          "status": "success",
+          "output": {
+            "data": "result"
+          }
+        }
+      ],
+      "summary": "All sub-agents completed successfully",
+      "workflow_completed": true
+    },
+    "metadata": {
+      "agent_name": "Policy Coordination Manager",
+      "timestamp": "2025-01-15T10:30:00Z",
+      "sub_agents_used": [
+        "Sub-Agent 1"
+      ]
+    }
+  }
+}

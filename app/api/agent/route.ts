@@ -11,11 +11,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Call the Lyzr agent API with correct endpoint and format
+    const apiKey = process.env.LYZR_API_KEY
+    if (!apiKey) {
+      console.error('Missing LYZR_API_KEY in environment')
+      return NextResponse.json(
+        { success: false, error: 'API key not configured' },
+        { status: 500 }
+      )
+    }
+
+    // Call the Lyzr agent API with authentication
     const response = await fetch('https://agent-prod.studio.lyzr.ai/api/agency/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
       },
       body: JSON.stringify({
         agent_id: agent_id,

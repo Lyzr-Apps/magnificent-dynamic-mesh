@@ -21,17 +21,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the Lyzr agent API with authentication
-    const response = await fetch('https://agent-prod.studio.lyzr.ai/inference/chat/', {
+    const requestPayload = {
+      agent_id: agent_id,
+      message: message,
+    }
+
+    console.log('Calling Lyzr API with payload:', requestPayload)
+
+    let response = await fetch('https://agent-prod.studio.lyzr.ai/inference/chat/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': apiKey,
+        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        agent_id: agent_id,
-        message: message,
-      }),
+      body: JSON.stringify(requestPayload),
     })
+
+    // If Authorization header fails, try X-API-Key header
+    if (response.status === 405 || response.status === 401 || response.status === 403) {
+      console.log('First attempt failed with status', response.status, 'Trying alternative header...')
+      response = await fetch('https://agent-prod.studio.lyzr.ai/inference/chat/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+        },
+        body: JSON.stringify(requestPayload),
+      })
+    }
+
+    console.log('Lyzr API Response Status:', response.status, response.statusText)
 
     const responseData = await response.json()
 

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: responseData.error || response.statusText,
-        raw_response: responseData,
+        raw_response: typeof responseData === 'string' ? responseData : JSON.stringify(responseData),
       }, { status: 200 }) // Return 200 so frontend can handle the error
     }
 
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       response: extractedMessage,
-      raw_response: responseData,
+      raw_response: typeof responseData === 'string' ? responseData : JSON.stringify(responseData),
     })
   } catch (error) {
     console.error('Agent API Error:', error)

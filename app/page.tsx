@@ -50,19 +50,14 @@ function Sidebar({ currentPage, setCurrentPage, mobileOpen, setMobileOpen }: {
     { id: 'history', label: 'Policy History', icon: 'history' },
   ]
 
-  const renderIcon = (iconType: string) => {
-    switch (iconType) {
-      case 'home':
-        return <FiHome className="h-5 w-5" />
-      case 'upload':
-        return <FiUpload className="h-5 w-5" />
-      case 'edit':
-        return <FiEdit3 className="h-5 w-5" />
-      case 'history':
-        return <FiHistory className="h-5 w-5" />
-      default:
-        return <FiHome className="h-5 w-5" />
+  const getIcon = (iconType: string) => {
+    const iconMap: Record<string, any> = {
+      home: FiHome,
+      upload: FiUpload,
+      edit: FiEdit3,
+      history: FiHistory,
     }
+    return iconMap[iconType] || FiHome
   }
 
   return (
@@ -92,7 +87,10 @@ function Sidebar({ currentPage, setCurrentPage, mobileOpen, setMobileOpen }: {
                       : 'text-gray-300 hover:bg-gray-800'
                   }`}
                 >
-                  {renderIcon(item.icon)}
+                  {(() => {
+                    const IconComponent = getIcon(item.icon)
+                    return <IconComponent className="h-5 w-5" />
+                  })()}
                   <span className="font-medium">{item.label}</span>
                 </button>
               )

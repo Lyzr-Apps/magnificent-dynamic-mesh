@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the Lyzr agent API with authentication
-    const response = await fetch('https://agent-prod.studio.lyzr.ai/api/agency/chat', {
+    const response = await fetch('https://agent-prod.studio.lyzr.ai/inference/chat/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

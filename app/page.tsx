@@ -44,11 +44,26 @@ function Sidebar({ currentPage, setCurrentPage, mobileOpen, setMobileOpen }: {
   setMobileOpen: (open: boolean) => void
 }) {
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: FiHome },
-    { id: 'upload', label: 'Upload Guidelines', icon: FiUpload },
-    { id: 'create', label: 'Create Policy', icon: FiEdit3 },
-    { id: 'history', label: 'Policy History', icon: FiHistory },
+    { id: 'dashboard', label: 'Dashboard', icon: 'home' },
+    { id: 'upload', label: 'Upload Guidelines', icon: 'upload' },
+    { id: 'create', label: 'Create Policy', icon: 'edit' },
+    { id: 'history', label: 'Policy History', icon: 'history' },
   ]
+
+  const renderIcon = (iconType: string) => {
+    switch (iconType) {
+      case 'home':
+        return <FiHome className="h-5 w-5" />
+      case 'upload':
+        return <FiUpload className="h-5 w-5" />
+      case 'edit':
+        return <FiEdit3 className="h-5 w-5" />
+      case 'history':
+        return <FiHistory className="h-5 w-5" />
+      default:
+        return <FiHome className="h-5 w-5" />
+    }
+  }
 
   return (
     <>
@@ -63,7 +78,6 @@ function Sidebar({ currentPage, setCurrentPage, mobileOpen, setMobileOpen }: {
 
           <nav className="flex-1 p-4">
             {navItems.map((item) => {
-              const IconComponent = item.icon
               const isActive = currentPage === item.id
               return (
                 <button
@@ -78,7 +92,7 @@ function Sidebar({ currentPage, setCurrentPage, mobileOpen, setMobileOpen }: {
                       : 'text-gray-300 hover:bg-gray-800'
                   }`}
                 >
-                  <IconComponent className="h-5 w-5" />
+                  {renderIcon(item.icon)}
                   <span className="font-medium">{item.label}</span>
                 </button>
               )
